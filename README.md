@@ -5,12 +5,26 @@
 npm install webpack webpack-cli --save-dev
 ```
 
-# 手动执行编译 js
-```bash
-npx webpack --entry=./index.js --output-filename=bundle.js --mode=development
+# 加入 webpack.config.js
+```JavaScript
+module.exports = {
+	entry: './src/app.js',
+	output: {
+		filename: 'bundle.js',
+	},
+	mode: 'development',
+}
 ```
 
-输出内容如下，则说明编译正常。
+# package.json 加入命令
+
+```json
+"scripts": {
+  "build": "webpack"
+},
+```
+
+运行 `npm run build` 输出内容如下，则说明编译正常。
 ```bash
 Hash: b33a695a6b39dd3acf07
 Version: webpack 4.41.5
