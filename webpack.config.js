@@ -3,7 +3,11 @@ const ENV = process.env.ENV
 const isProd = ENV === 'production'
 
 module.exports = {
+	// 如果启动了mode，webpack 顺便会帮你设置好了 process.env.NODE_ENV 
 	mode: ENV,
+
+	// 启动source-map
+	devtool: 'source-map',
 
 	/**
 	 * 🚀 entry 有几种形式：『1. 字符串类型入口』、 『2. 数组类型入口』、 『3. 对象类型入口』、 『4. 数组对象类型入口』、 『5. (异步)函数类型入口』：
@@ -58,6 +62,7 @@ module.exports = {
 		new webpack.DefinePlugin({
 			// ⚠️ 这里必须使用 JSON.stringify 输出
 			// 在 app.js 中就可以使用了： console.log(20191229005300, ENV)
+			// 也可以设置其他类型： JSON.stringify({ TYPE: ['foo', 'bar'] })
 			ENV: JSON.stringify('test'),
 		})
 	],
