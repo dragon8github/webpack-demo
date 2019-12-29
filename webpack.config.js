@@ -1,9 +1,12 @@
 const webpack = require('webpack')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+
 const ENV = process.env.ENV
 const isProd = ENV === 'production'
 
 module.exports = {
 	// 如果启动了mode，webpack 顺便会帮你设置好了 process.env.NODE_ENV 
+	// 开发模式不压缩打包后代码，生产模式压缩打包后代码
 	mode: ENV,
 
 	// 启动source-map
@@ -40,14 +43,15 @@ module.exports = {
 	 * - publicPath: '../assets'  // => http://www.baidu.com/assets/bundle.js
 	 */
 	output: {
-		filename: isProd ? '[name]@[chunkhash].js' : 'app.js',
+		// filename: isProd ? '[name]@[chunkhash].js' : 'app.js',
+		filename: '[name].js',
 	},
 
 	module: {
 		rules: [{
 			// npm install babel-loader @babel/core @babel/preset-env
 			test: /\.js$/,
-			exclude: '/node_modules/',
+			exclude: /node_modules/,
 			use: {
 				loader: 'babel-loader',
 				options: {
@@ -55,10 +59,36 @@ module.exports = {
 					'presets': ['@babel/preset-env']
 				},
 			},
+		}, {
+			// npm install ts-loader typescript --save-dev
+			test: /\.ts$/,
+			use: 'ts-loader',
+		}, {
+			// npm install url-loader --save-dev
+			test: /\.(png|jpg|gif|jpeg|svg)$/,
+			use: {
+				loader: 'url-loader',
+				options: {
+					limit: 10240,
+					name: '[name].[ext]',
+					publicPath: './assets/',
+				}
+			},
+		}, {
+			// npm install css-loader style-loader --save-dev
+			test: /\.css$/,
+			use: ['style-loader', 'css-loader'],
+			exclude: /node_modules/,
 		}],
 	},
 
 	plugins: [
+		// 动态 html
+		new HtmlWebpackPlugin({
+			template: './src/index.html'
+		}),
+
+		// 定义环境变量
 		new webpack.DefinePlugin({
 			// ⚠️ 这里必须使用 JSON.stringify 输出
 			// 在 app.js 中就可以使用了： console.log(20191229005300, ENV)
@@ -75,4 +105,17 @@ module.exports = {
 		 */
 		publicPath: '/dist',
 	},
+
+	// 是否开启监听文件
+    watch: true,  
+
+    // 监听配置
+    watchOptions: {
+    	// 每秒询问多少次
+        poll: 1000,
+        // 防抖
+        aggregateTimeout: 500,  
+        // 忽略
+        ignored: /node_modules/ 
+    },
 }
