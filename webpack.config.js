@@ -90,7 +90,12 @@ module.exports = {
 			// npm install sass-loader node-sass
 			// 通过配合 html-webpack-plugin 插件的使用，生成的html就会自动引入css文件
 			test: /\.(css|scss)$/,
-			use: [ isProd ? MiniCssExtractPlugin.loader : 'style-loader', 'css-loader', 'sass-loader'],
+			use: [ 
+				isProd ? MiniCssExtractPlugin.loader : 'style-loader', 
+				{ loader: 'css-loader',  options: { sourceMap: true } },
+				'postcss-loader',
+				{ loader: 'sass-loader', options: { sourceMap: true } },
+			],
 		}],
 	},
 
