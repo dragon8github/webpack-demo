@@ -15,7 +15,8 @@ npm install babel-loader @babel/core @babel/preset-env --save-dev
 npm install webpack-dev-server --save-dev
 npm install ts-loader typescript --save-dev
 npm install url-loader --save-dev
-npm install css-loader style-loader --save-dev
+npm install css-loader style-loader mini-css-extract-plugin --save-dev
+cnpm install sass-loader node-sass --save-dev
 ```
 
 # 运行开发环境

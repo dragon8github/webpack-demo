@@ -1,5 +1,6 @@
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const ENV = process.env.ENV
 const isProd = ENV === 'production'
@@ -9,8 +10,14 @@ module.exports = {
 	// 开发模式不压缩打包后代码，生产模式压缩打包后代码
 	mode: ENV,
 
-	// 启动source-map
-	devtool: 'source-map',
+	/**
+	 * 🚀 启动source-map
+     * - source-map：产生文件，产生行列
+     * - eval-source-map：不产生文件，产生行类
+     * - cheap-source-map：产生文件，不产生列
+     * - cheap-module-eval-source-map：不产生文件，不产生列
+	 */
+	devtool: isProd ? 'cheap-module-eval-source-map' : 'source-map',
 
 	/**
 	 * 🚀 entry 有几种形式：『1. 字符串类型入口』、 『2. 数组类型入口』、 『3. 对象类型入口』、 『4. 数组对象类型入口』、 『5. (异步)函数类型入口』：
@@ -20,19 +27,22 @@ module.exports = {
 	 * 4. entry: { index: ['babel-polyfill', './src/index.js'], lib: './src/lib.js' },
 	 * 5. entry: () => new Promise(resolve => setTimeout(() => resolve('./src/index.js'), 1000)),
 	 *
+	 * 🚀 如果使用 『1. 字符串类型入口』 和 『2. 数组类型入口』，默认编译出来的文件名为：main.js 
+	 * 这一点无论你 output.filename 是否采用 [name].js 都是一样的。
+	 *
 	 * 🚀 提取 vendor（供应商）: 在 webpack 中一般指工程所使用的库、框架等第三方模块集中打包产生的 bundled
 	 * 将不会经常变动的文件抽取出来生成一个新的 bundled，有效利用客户端的缓存，在用户后续请求页面时会加快整体的渲染速度。
 	 * entry: { app: './src/app.js', vendor: ['react', 'react-dom', 'react-router'] }
 	 */
 	entry: { 
-		app: ['babel-polyfill', './src/app.js']
+		app: ['babel-polyfill', './src/app.js'],
 	},
 
 	/**
 	 * output.path 默认是 ./dist，所以通常我们不配置。
 	 * output.path 指定资源的输出目录，必须是绝对位置： path: path.join(__dirname, 'dist'),
 	 * output.filename 可以是相对路径譬如： './js/bundle.js' => ./dist/js/bundle.js
-	 * output.filename 可以加入指纹来防止浏览器缓存： '[name]@[chunkhash ].js'
+	 * output.filename 可以加入指纹来防止浏览器缓存： '[name]@[chunkhash].js'
 	 *
 	 * 🚀 publicPath 是一个极其特别重要的配置项，容易和path混淆。 从功能上说： path 是指定资源输出路径，publicPath 是资源请求路径。
 	 * 假设当前地址是： http://www.google.com/fuck/index.html
@@ -43,7 +53,7 @@ module.exports = {
 	 * - publicPath: '../assets'  // => http://www.baidu.com/assets/bundle.js
 	 */
 	output: {
-		// filename: isProd ? '[name]@[chunkhash].js' : 'app.js',
+		// filename: isProd ? '[name]@[chunkhash].js' : '[name].js',
 		filename: '[name].js',
 	},
 
@@ -75,14 +85,22 @@ module.exports = {
 				}
 			},
 		}, {
-			// npm install css-loader style-loader --save-dev
-			test: /\.css$/,
-			use: ['style-loader', 'css-loader'],
-			exclude: /node_modules/,
+			// npm install css-loader mini-css-extract-plugin --save-dev
+			// npm config set sass_binary_site-https//npm.taobao.org/mirrors/node-sass
+			// npm install sass-loader node-sass
+			// 通过配合 html-webpack-plugin 插件的使用，生成的html就会自动引入css文件
+			test: /\.(css|scss)$/,
+			use: [ isProd ? MiniCssExtractPlugin.loader : 'style-loader', 'css-loader', 'sass-loader'],
 		}],
 	},
 
 	plugins: [
+		// 抽离css
+		new MiniCssExtractPlugin({
+			filename: '[name].css',
+			chunkFilename: '[id].css',
+		}),
+
 		// 动态 html
 		new HtmlWebpackPlugin({
 			template: './src/index.html'
@@ -106,9 +124,8 @@ module.exports = {
 		publicPath: '/dist',
 	},
 
-	// 是否开启监听文件
+	// 是否开启监听文件： webpack --watch
     watch: true,  
-
     // 监听配置
     watchOptions: {
     	// 每秒询问多少次
