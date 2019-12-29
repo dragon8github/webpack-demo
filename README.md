@@ -17,6 +17,7 @@ npm install ts-loader typescript --save-dev
 npm install url-loader --save-dev
 npm install css-loader style-loader mini-css-extract-plugin --save-dev
 cnpm install sass-loader node-sass --save-dev
+cnpm install postcss-loader autoprefixer --save-dev
 ```
 
 # 运行开发环境

@@ -2,6 +2,7 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
+const isWatch = process.argv.includes('--watch')
 const ENV = process.env.ENV
 const isProd = ENV === 'production'
 
@@ -130,7 +131,8 @@ module.exports = {
 	},
 
 	// 是否开启监听文件： webpack --watch
-    watch: true,  
+    watch: isWatch,  
+    
     // 监听配置
     watchOptions: {
     	// 每秒询问多少次
