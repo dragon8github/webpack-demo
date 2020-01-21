@@ -1,3 +1,4 @@
+const fs = require('fs').promises
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
@@ -28,16 +29,26 @@ module.exports = {
 	 * 4. entry: { index: ['babel-polyfill', './src/index.js'], lib: './src/lib.js' },
 	 * 5. entry: () => new Promise(resolve => setTimeout(() => resolve('./src/index.js'), 1000)),
 	 *
-	 * 🚀 如果使用 『1. 字符串类型入口』 和 『2. 数组类型入口』，默认编译出来的文件名为：main.js 
+	 * 🚀 如果使用 『1. 字符串类型入口』 或 『2. 数组类型入口』，默认编译出来的文件名为：main.js 
 	 * 这一点无论你 output.filename 是否采用 [name].js 都是一样的。
 	 *
 	 * 🚀 提取 vendor（供应商）: 在 webpack 中一般指工程所使用的库、框架等第三方模块集中打包产生的 bundled
 	 * 将不会经常变动的文件抽取出来生成一个新的 bundled，有效利用客户端的缓存，在用户后续请求页面时会加快整体的渲染速度。
 	 * entry: { app: './src/app.js', vendor: ['react', 'react-dom', 'react-router'] }
+	 *
+	 * 🚀 动态获取entry文件
+	 * 	entry: async () => (await fs.readdir('./src')).reduce((p, c) => {
+		// 获取文件名和前缀
+	    const [name, ext] = c.split('.')
+	    // 加入文件和路径
+	    p[name] = `./src/${c}`
+	    // 返回内容
+	    return p
+	}, {}),
 	 */
-	entry: { 
-		app: ['babel-polyfill', './src/app.js'],
-	},
+	 entry: {
+	     app: ['babel-polyfill', './src/index.js'],
+	 },
 
 	/**
 	 * output.path 默认是 ./dist，所以通常我们不配置。
@@ -109,7 +120,7 @@ module.exports = {
 
 		// 动态 html
 		new HtmlWebpackPlugin({
-			template: './src/index.html'
+		    template: './index.html'
 		}),
 
 		// 定义环境变量
